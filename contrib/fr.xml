@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
+<!--NOTICE: Please open this file in your web browser. If presented with a security warning, you may safely tell it to allow the blocked content.-->
+<!--For security purposes, please check: http://www.phpbb.com/mods/ for the latest version of this MOD.\nAlthough MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD.\nNo support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
+<mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://www.phpbb.com/mods/xml/modx-1.2.6.xsd">
+	<header>
+		<meta name="generator" content="MODX file generated with PP MODX Creator 1.2.6 by tumba25 (phpBB version) (French translation by Geolim4.com)"/>
+		<license><![CDATA[http://opensource.org/licenses/gpl-license.php GNU General Public License v2]]></license>
+		<title lang="en"><![CDATA[Hide profile in viewtopic (French Translation)]]></title>
+		<title lang="fr"><![CDATA[Hide profile in viewtopic (Traduction Française)]]></title>
+		<description lang="en"><![CDATA[This mod allow you to hide user's profile in viewtopic.
+Based on forum's permissions.]]></description>
+		<description lang="fr"><![CDATA[Ce mod vous permettras de cacher le profil des utilisateurs dans viewtopic
+Basé sur les permissions de forum]]></description>
+		<author-group>
+			<author>
+				<realname><![CDATA[Georges.L]]></realname>
+				<username><![CDATA[Geolim4]]></username>
+				<homepage><![CDATA[http://geolim4.com]]></homepage>
+				<email><![CDATA[contact@geolim4.com]]></email>
+			</author>
+		</author-group>
+		<mod-version>1.0.1</mod-version>
+		<installation>
+			<level>easy</level>
+			<time>300</time>
+			<target-version>3.0.12</target-version>
+		</installation>
+	</header>
+	<action-group>
+		<copy>
+			<file from="root/umil/*.*" to="umil/*.*"/>
+		</copy>
+		<open src="language/fr/posting.php">
+			<edit>
+				<find><![CDATA[	'POST_NORMAL'				=> 'Normal',]]></find>
+				<action type="after-add"><![CDATA[	//MOD: hide profile in viewtopic
+	'POST_PROFILE'				=> 'Cacher le mini-profil',
+	//END: hide profile in viewtopic]]></action>
+			</edit>
+		</open>
+		<open src="language/fr/acp/permissions_phpbb.php">
+			<edit>
+				<find><![CDATA[	'acl_f_noapprove'	=> array('lang'	=> 'Peut poster sans approbation', 'cat' => 'misc'),]]></find>
+				<action type="after-add"><![CDATA[	//MOD: hide profile in viewtopic
+	'acl_f_post_profile'	=> array('lang' => 'Peut cacher son profil dans ses messages', 'cat' => 'misc'),
+	//END: hide profile in viewtopic]]></action>
+			</edit>
+		</open>
+	</action-group>
+</mod>

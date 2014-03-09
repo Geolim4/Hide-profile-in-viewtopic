@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
+<!--NOTICE: Please open this file in your web browser. If presented with a security warning, you may safely tell it to allow the blocked content.-->
+<!--For security purposes, please check: http://www.phpbb.com/mods/ for the latest version of this MOD.\nAlthough MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD.\nNo support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
+<mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://www.phpbb.com/mods/xml/modx-1.2.6.xsd">
+	<header>
+		<meta name="generator" content="MODX file generated with PP MODX Creator by tumba25 (online version)"/>
+		<meta name="generator" content="MODX file generated with PP MODX Creator 1.2.6 by tumba25 (phpBB version) (French translation by Geolim4.com)"/>
+		<license><![CDATA[http://opensource.org/licenses/gpl-license.php GNU General Public License v2]]></license>
+		<title lang="en"><![CDATA[Hide profile in viewtopic]]></title>
+		<title lang="fr"><![CDATA[Hide profile in viewtopic]]></title>
+		<description lang="en"><![CDATA[This mod allow you to hide user's profile in viewtopic.
+Based on forum's permissions.]]></description>
+		<description lang="fr"><![CDATA[Ce mod vous permettras de cacher le profil des utilisateurs dans viewtopic
+Basé sur les permissions de forum]]></description>
+		<author-group>
+			<author>
+				<realname><![CDATA[Georges.L]]></realname>
+				<username><![CDATA[Geolim4]]></username>
+				<homepage><![CDATA[http://geolim4.com]]></homepage>
+				<email><![CDATA[contact@geolim4.com]]></email>
+			</author>
+		</author-group>
+		<mod-version>1.0.1</mod-version>
+		<installation>
+			<level>easy</level>
+			<time>600</time>
+			<target-version>3.0.12</target-version>
+		</installation>
+		<link-group>
+			<link type="language" href="contrib/fr.xml" lang="en">French Translation</link>
+			<link type="language" href="contrib/fr.xml" lang="fr">Traduction Française</link>
+			<link type="contrib" href="contrib/update_1.0.0_to_1.0.1.xml" lang="en">Update from 1.0.0</link>
+			<link type="contrib" href="contrib/update_1.0.0_to_1.0.1.xml" lang="fr">Mise à jour depuis 1.0.0</link>
+		</link-group>
+	</header>
+	<action-group>
+		<copy>
+			<file from="root/umil/*.*" to="umil/*.*"/>
+			<file from="root/hpiv_install.php" to="hpiv_install.php"/>
+		</copy>
+		<open src="posting.php">
+			<edit>
+				<find><![CDATA[	$post_data['enable_sig']		= (!$config['allow_sig'] || !$auth->acl_get('f_sigs', $forum_id) || !$auth->acl_get('u_sig')) ? false : ((isset($_POST['attach_sig']) && $user->data['is_registered']) ? true : false);]]></find>
+				<action type="after-add"><![CDATA[	//MOD: hide profile in viewtopic
+	$post_data['post_profile']		= (!$auth->acl_get('f_post_profile', $forum_id) ) ? false : ((isset($_POST['post_profile']) && $user->data['is_registered']) ? true : false);
+	//END: hide profile in viewtopic]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[				'post_approved'			=> (isset($post_data['post_approved'])) ? $post_data['post_approved'] : false,
+			);]]></find>
+				<action type="after-add"><![CDATA[			//MOD: hide profile in viewtopic
+			$data += array(
+				'post_profile'			=> (bool) $post_data['post_profile'],
+			);
+			//END: hide profile in viewtopic]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[$sig_checked		= $post_data['enable_sig'];]]></find>
+				<action type="after-add"><![CDATA[//MOD: hide profile in viewtopic
+$post_profile		= (isset($post_data['post_profile'])) ? $post_data['post_profile'] : 0;
+//END: hide profile in viewtopic]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[// Build custom bbcodes array
+display_custom_bbcodes();]]></find>
+				<action type="before-add"><![CDATA[//MOD: hide profile in viewtopic
+$template->assign_vars(array(
+	'S_POST_PROFILE_ALLOWED'	=> ($auth->acl_get('f_post_profile', $forum_id) && $user->data['is_registered']) ? true : false,
+	'S_POST_PROFILE_CHECKED'	=> ($post_profile) ? ' checked="checked"' : ''
+));
+//END: hide profile in viewtopic]]></action>
+			</edit>
+		</open>
+		<open src="viewtopic.php">
+			<edit>
+				<find><![CDATA[	// Define the global bbcode bitfield, will be used to load bbcodes]]></find>
+				<action type="before-add"><![CDATA[	//MOD: hide profile in viewtopic
+	$rowset[$row['post_id']] += array(
+		'post_profile'		=> $row['post_profile']
+		
+	);
+	//END: hide profile in viewtopic]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[	if (isset($cp_row['row']) && sizeof($cp_row['row']))]]></find>
+				<action type="before-add"><![CDATA[	//MOD: hide profile in viewtopic
+	$postrow += array(
+		'S_POST_PROFILE'	=> (!empty($row['post_profile'])) ? true : false,
+	);
+	//END: hide profile in viewtopic]]></action>
+			</edit>
+		</open>
+		<open src="includes/functions_posting.php">
+			<edit>
+				<find><![CDATA[	$post_approved = $sql_data[POSTS_TABLE]['sql']['post_approved'];]]></find>
+				<action type="before-add"><![CDATA[	//MOD: hide profile in viewtopic
+	$sql_data[POSTS_TABLE]['sql'] = array_merge($sql_data[POSTS_TABLE]['sql'], array(
+		'post_profile'			=> $data['post_profile']
+	));
+	//END: hide profile in viewtopic]]></action>
+			</edit>
+		</open>
+		<open src="language/en/posting.php">
+			<edit>
+				<find><![CDATA[	'POST_NORMAL'				=> 'Normal',]]></find>
+				<action type="after-add"><![CDATA[	//MOD: hide profile in viewtopic
+	'POST_PROFILE'				=> 'Hide the mini-profile',
+	//END: hide profile in viewtopic]]></action>
+			</edit>
+		</open>
+		<open src="language/en/acp/permissions_phpbb.php">
+			<edit>
+				<find><![CDATA[	'acl_f_noapprove'	=> array('lang' => 'Can post without approval', 'cat' => 'misc'),]]></find>
+				<action type="after-add"><![CDATA[	//MOD: hide profile in viewtopic
+	'acl_f_post_profile'	=> array('lang' => 'Users can hide profiles in their posts', 'cat' => 'misc'),
+	//END: hide profile in viewtopic]]></action>
+			</edit>
+		</open>
+		<open src="styles/prosilver/template/posting_editor.html">
+			<edit>
+				<find><![CDATA[			<!-- IF S_SIG_ALLOWED -->
+				<div><label for="attach_sig"><input type="checkbox" name="attach_sig" id="attach_sig"{S_SIGNATURE_CHECKED} /> {L_ATTACH_SIG}</label></div>
+			<!-- ENDIF -->]]></find>
+				<action type="after-add"><![CDATA[			<!-- IF S_POST_PROFILE_ALLOWED -->
+				<div><label for="post_profile"><input type="checkbox" name="post_profile" id="post_profile"{S_POST_PROFILE_CHECKED} /> {L_POST_PROFILE}</label></div>
+			<!-- ENDIF -->]]></action>
+			</edit>
+		</open>
+		<open src="styles/prosilver/template/viewtopic_body.html">
+			<edit>
+				<find><![CDATA[		<div class="postbody">]]></find>
+				<action type="replace-with"><![CDATA[		<div class="postbody"<!-- IF postrow.S_POST_PROFILE --> style="width: 100%;"<!-- ENDIF -->>]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[				<ul class="profile-icons">]]></find>
+				<action type="replace-with"><![CDATA[				<ul class="profile-icons"<!-- IF postrow.S_POST_PROFILE --> style="margin-right: 5em;"<!-- ENDIF -->>]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[		<!-- IF not postrow.S_IGNORE_POST -->
+			<dl class="postprofile" id="profile{postrow.POST_ID}">]]></find>
+				<action type="replace-with"><![CDATA[		<!-- IF not postrow.S_IGNORE_POST and not postrow.S_POST_PROFILE -->
+			<dl class="postprofile" id="profile{postrow.POST_ID}">]]></action>
+			</edit>
+		</open>
+		<php-installer><![CDATA[hpiv_install.php]]></php-installer>
+	</action-group>
+</mod>
